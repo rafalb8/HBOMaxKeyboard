@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HBO Max Keyboard Shortcuts
 // @namespace    https://play.hbomax.com/
-// @version      0.1
+// @version      0.11
 // @description  Adds keyboard shortcuts to HBO Max player
 // @author       Rafalb8
 // @match        https://play.hbomax.com/*
@@ -66,9 +66,9 @@
             case "seek":
                 if (typeof video.fastSeek === 'function') {
                     // fastSeek - firefox only
-                    video.fastSeek(video.currentTime + seek);
+                    video.fastSeek(video.currentTime + command.value);
                 } else {
-                    video.currentTime += seek;
+                    video.currentTime += command.value;
                 }
                 break;
             case "volume":
