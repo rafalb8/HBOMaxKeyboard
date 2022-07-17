@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HBO Max Keyboard Shortcuts
 // @namespace    https://github.com/rafalb8/HBOMaxKeyboard
-// @version      0.11
+// @version      0.12
 // @description  Adds keyboard shortcuts to HBO Max player
 // @author       Rafalb8
 // @match        https://play.hbomax.com/*
