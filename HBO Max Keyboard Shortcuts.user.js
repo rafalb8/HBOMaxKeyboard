@@ -11,19 +11,18 @@
 
 (function () {
     'use strict';
-
+    
     // config
     const minSeek = 5; // with modifier
     const maxSeek = 10;
-
+    
     const minVolume = 0.1; // with modifier
     const maxVolume = 0.25;
+    
+    // functions
+    const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
-    var clamp = function (value, min, max) {
-        return Math.min(Math.max(value, min), max);
-    }
-
-
+    // register keyboard shortcuts
     document.addEventListener('keydown', (e) => {
 
         const modifier = e.shiftKey;
