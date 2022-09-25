@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HBO Max Keyboard Shortcuts
 // @namespace    https://github.com/rafalb8/HBOMaxKeyboard
-// @version      0.12
+// @version      0.13
 // @description  Adds keyboard shortcuts to HBO Max player
 // @author       Rafalb8
 // @match        https://play.hbomax.com/*
@@ -11,67 +11,82 @@
 
 (function () {
     'use strict';
-    
+
     // config
-    const minSeek = 5; // with modifier
-    const maxSeek = 10;
-    
-    const minVolume = 0.1; // with modifier
-    const maxVolume = 0.25;
-    
+    const seek = 5;
+    const volume = 0.1;
+
     // functions
     const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
+    var video = document.querySelector('video');
+
+    var fastSeek = false;
+
+    const loadVideo = () => {
+        if (video == null || video == undefined) {
+            video = document.querySelector('video');
+            fastSeek = (typeof video.fastSeek === 'function')
+        }
+    }
+
     // register keyboard shortcuts
     document.addEventListener('keydown', (e) => {
-
-        const modifier = e.shiftKey;
-
+        loadVideo();
         var command = {};
 
         switch (e.key) {
             // seek forward
-            case "ArrowRight":
-                command = { type: "seek", value: modifier ? minSeek : maxSeek };
+            case "l":
+                command = { type: "seek", value: seek };
                 break;
 
             // seek backward
-            case "ArrowLeft":
-                command = { type: "seek", value: modifier ? -minSeek : -maxSeek };
+            case "j":
+                command = { type: "seek", value: -seek };
                 break;
 
             // volume up
             case "ArrowUp":
-                command = { type: "volume", value: modifier ? minVolume : maxVolume };
+                command = { type: "volume", value: volume };
                 break;
 
             // volume down
             case "ArrowDown":
-                command = { type: "volume", value: modifier ? -minVolume : -maxVolume };
+                command = { type: "volume", value: -volume };
+                break;
+
+            // Play/Pause
+            case "k":
+                command = { type: "control" };
                 break;
 
             default:
                 return;
         }
 
-        const video = document.querySelector('video');
-        if (video?.length > 0) {
-            console.log('video not found')
-            return
-        }
-
         // send command to player
         switch (command.type) {
+
             case "seek":
-                if (typeof video.fastSeek === 'function') {
-                    // fastSeek - firefox only
-                    video.fastSeek(video.currentTime + command.value);
+                var pos = video.currentTime + command.value;
+                if (fastSeek) {
+                    video.fastSeek(pos);
                 } else {
-                    video.currentTime += command.value;
+                    video.currentTime = pos
                 }
                 break;
+
             case "volume":
                 video.volume = clamp(video.volume + command.value, 0, 1);
+                break;
+
+            case "control":
+                if (video.paused) {
+                    video.play()
+                } else {
+                    video.pause()
+                }
                 break;
         }
 

@@ -1,9 +1,11 @@
 # HBO Max Keyboard shortcuts
 
+This script add additional keyboard shortucts
+
 # Keyboard shortcuts
- - Right/Left arrow keys - seek 10s forward/backwards
- - Shift + Right/Left arrow keys - seek 5s
- - Up/Down - volume control, Shift for smaller steps.
+ - J / L - seek 5s backward / forward.
+ - Up / Down - volume control.
+ - K - play / pause.
 
 # Installation
 
