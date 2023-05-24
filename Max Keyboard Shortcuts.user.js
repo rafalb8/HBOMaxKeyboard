@@ -1,9 +1,10 @@
 // ==UserScript==
-// @name         HBO Max Keyboard Shortcuts
+// @name         Max Keyboard Shortcuts
 // @namespace    https://github.com/rafalb8/HBOMaxKeyboard
-// @version      0.13
-// @description  Adds keyboard shortcuts to HBO Max player
+// @version      0.15
+// @description  Adds keyboard shortcuts to (HBO)Max player
 // @author       Rafalb8
+// @match        https://*.max.com/*
 // @match        https://play.hbomax.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=hbomax.com
 // @grant        none
@@ -18,11 +19,6 @@
 
     // functions
     const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
-
-    var video = document.querySelector('video');
-
-    var fastSeek = false;
-
     const loadVideo = () => {
         if (video == null || video == undefined) {
             video = document.querySelector('video');
@@ -30,8 +26,12 @@
         }
     }
 
+    // vars
+    var fastSeek = false;
+    var video = document.querySelector('video');
+
     // register keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener('keyup', (e) => {
         loadVideo();
         var command = {};
 
@@ -61,12 +61,33 @@
                 command = { type: "control" };
                 break;
 
+            // Fullscreen
+            case "f":
+                if (document.baseURI.includes("play.hbomax.com")){
+                    // skip for play.hbomax.com
+                    return;
+                }
+                command = { type: "fullscreen" };
+                break;
+
             default:
                 return;
         }
 
+        e.stopImmediatePropagation();
+
         // send command to player
         switch (command.type) {
+
+            case "fullscreen":
+                if (!document.fullscreenElement) {
+                    video.requestFullscreen({
+                        navigationUI: "show"
+                    }).catch(err => { console.log(err) })
+                } else {
+                    document.exitFullscreen()
+                }
+                break;
 
             case "seek":
                 var pos = video.currentTime + command.value;
