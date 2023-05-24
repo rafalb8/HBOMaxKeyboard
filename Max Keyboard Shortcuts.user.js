@@ -1,9 +1,10 @@
 // ==UserScript==
-// @name         Max Keyboard Shortcuts
+// @name         Max (and HBO Max) Keyboard Shortcuts
 // @namespace    https://github.com/rafalb8/HBOMaxKeyboard
-// @version      0.15
+// @version      0.16
 // @description  Adds keyboard shortcuts to (HBO)Max player
 // @author       Rafalb8
+// @author       CHJ85
 // @match        https://*.max.com/*
 // @match        https://play.hbomax.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=hbomax.com
@@ -19,55 +20,58 @@
 
     // functions
     const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
-    const loadVideo = () => {
-        if (video == null || video == undefined) {
-            video = document.querySelector('video');
-            fastSeek = (typeof video.fastSeek === 'function')
-        }
-    }
-
-    // vars
-    var fastSeek = false;
-    var video = document.querySelector('video');
+    let video = null;
+    let fastSeek = false;
 
     // register keyboard shortcuts
-    document.addEventListener('keyup', (e) => {
+    document.addEventListener('keydown', (e) => {
         loadVideo();
-        var command = {};
 
         switch (e.key) {
             // seek forward
             case "l":
-                command = { type: "seek", value: seek };
+                seekVideo(seek);
                 break;
 
             // seek backward
             case "j":
-                command = { type: "seek", value: -seek };
+                seekVideo(-seek);
                 break;
 
             // volume up
             case "ArrowUp":
-                command = { type: "volume", value: volume };
+                adjustVolume(volume);
                 break;
 
             // volume down
             case "ArrowDown":
-                command = { type: "volume", value: -volume };
+                adjustVolume(-volume);
                 break;
 
             // Play/Pause
             case "k":
-                command = { type: "control" };
+            case " ":
+                e.preventDefault(); // Prevents spacebar from scrolling the page
+                togglePlayPause();
                 break;
 
             // Fullscreen
             case "f":
-                if (document.baseURI.includes("play.hbomax.com")){
+                if (document.baseURI.includes("play.hbomax.com")) {
                     // skip for play.hbomax.com
                     return;
                 }
-                command = { type: "fullscreen" };
+                toggleFullscreen();
+                break;
+
+            // Jump forward
+            case "ArrowRight":
+                jumpForward();
+                break;
+
+            // Jump back
+            case "ArrowLeft":
+                jumpBack();
                 break;
 
             default:
@@ -75,42 +79,65 @@
         }
 
         e.stopImmediatePropagation();
-
-        // send command to player
-        switch (command.type) {
-
-            case "fullscreen":
-                if (!document.fullscreenElement) {
-                    video.requestFullscreen({
-                        navigationUI: "show"
-                    }).catch(err => { console.log(err) })
-                } else {
-                    document.exitFullscreen()
-                }
-                break;
-
-            case "seek":
-                var pos = video.currentTime + command.value;
-                if (fastSeek) {
-                    video.fastSeek(pos);
-                } else {
-                    video.currentTime = pos
-                }
-                break;
-
-            case "volume":
-                video.volume = clamp(video.volume + command.value, 0, 1);
-                break;
-
-            case "control":
-                if (video.paused) {
-                    video.play()
-                } else {
-                    video.pause()
-                }
-                break;
-        }
-
     }, false);
 
+    document.addEventListener('click', () => {
+        loadVideo();
+    });
+
+    function loadVideo() {
+        if (video == null || video == undefined) {
+            video = document.querySelector('video');
+            fastSeek = typeof video.fastSeek === 'function';
+        }
+    }
+
+    function seekVideo(value) {
+        loadVideo();
+        if (video) {
+            const pos = video.currentTime + value;
+            if (fastSeek) {
+                video.fastSeek(pos);
+            } else {
+                video.currentTime = pos;
+            }
+        }
+    }
+
+    function adjustVolume(value) {
+        loadVideo();
+        if (video) {
+            video.volume = clamp(video.volume + value, 0, 1);
+        }
+    }
+
+    function togglePlayPause() {
+        loadVideo();
+        if (video) {
+            if (video.paused) {
+                video.play();
+            } else {
+                video.pause();
+            }
+        }
+    }
+
+    function toggleFullscreen() {
+        loadVideo();
+        if (video) {
+            if (!document.fullscreenElement) {
+                video.requestFullscreen({ navigationUI: 'show' }).catch(err => console.log(err));
+            } else {
+                document.exitFullscreen();
+            }
+        }
+    }
+
+    function jumpForward() {
+        seekVideo(seek);
+    }
+
+    function jumpBack() {
+        seekVideo(-seek);
+    }
 })();
